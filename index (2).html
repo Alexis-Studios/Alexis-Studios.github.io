@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Quest Log | Bento Version</title>
+    <style>
+        /* 1. ANIMATED FLOW BACKGROUND */
+        @keyframes drift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body { 
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #0f172a);
+            background-size: 400% 400%;
+            animation: drift 20s ease infinite;
+            color: #e0e0e0; 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            padding: 40px;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background 0.8s ease;
+        }
+
+        /* 2. THE BENTO GRID CONTAINER */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 3. MODERN GLASS TILES (THE BENTO BOXES) */
+        .tile { 
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s;
+        }
+
+        .tile:hover { 
+            transform: perspective(1000px) rotateX(3deg) rotateY(3deg) translateY(-5px); 
+            border-color: #7000ff; 
+            box-shadow: 0 25px 50px rgba(112, 0, 255, 0.15);
+        }
+
+        h3 { color: #7000ff; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; font-weight: 800; }
+
+        .content-box { 
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 18px;
+            padding: 15px;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .btn { 
+            display: block; width: 100%; background: #7000ff; color: white; 
+            border: none; border-radius: 14px; padding: 12px; text-align: center;
+            font-weight: 600; cursor: pointer; transition: 0.2s;
+            text-transform: uppercase; font-size: 0.8rem; margin-top: 8px;
+        }
+        .btn:hover { background: #5a00cc; transform: scale(1.02); }
+
+        .progress-container { height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin: 10px 0; }
+        #aura-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #7000ff, #00f0ff); transition: 1s linear; }
+
+        pre { font-size: 2.5rem; margin: 15px 0; text-align: center; color: #fff; text-shadow: 0 0 10px rgba(112, 0, 255, 0.4); }
+        [contenteditable] { outline: none; border-bottom: 1px solid rgba(112, 0, 255, 0.2); padding-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="bento-grid">
+        <!-- TILE 1: COMPANION -->
+        <div class="tile" id="pet-tile">
+            <h3>👾 B-Low</h3>
+            <div class="content-box">
+                <pre id="pet">( ^_^) </pre> 
+                <p id="pet-talk" style="text-align:center; font-style: italic;">"Ready for the grind?"</p>
+            </div>
+            <div style="font-size: 10px; color: #94a3b8;">AURA LEVEL: <span id="aura-lv">1</span></div>
+            <div class="progress-container"><div id="aura-bar"></div></div>
+            <button class="btn" onclick="pokePet()">DON'T POKE</button>
+        </div>
+
+        <!-- TILE 2: QUESTS -->
+        <div class="tile">
+            <h3>📜 Main Quest</h3>
+            <div class="content-box">
+                <div id="quest-item" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 80px;">
+                    <span id="quest-text" contenteditable="true" onfocus="if(this.innerText==='Type your goal here...') this.innerText=''" onblur="if(this.innerText==='') this.innerText='Type your goal here...'">Type your goal here...</span>
+                </div>
+            </div>
+            <button class="btn" style="background:#00ff88; color:black;" onclick="finishQuest()">✅ Complete Quest</button>
+        </div>
+
+        <!-- TILE 3: COMMAND CENTER (SEARCH) -->
+        <div class="tile">
+            <h3>🚀 Command Center</h3>
+            <div class="content-box">
+                <select id="search-engine" style="width:100%; background:#1e1b4b; color:white; border:none; border-radius:8px; padding:10px; margin-bottom:10px; cursor:pointer;">
+                    <option value="google">Google</option>
+                    <option value="youtube">YouTube</option>
+                    <option value="reddit">Reddit</option>
+                </select>
+                <input type="text" id="search-input" placeholder="Search the void..." style="width:100%; background:transparent; border:none; color:white; font-size:1rem; outline:none;">
+            </div>
+            <button class="btn" onclick="runSearch()">SEARCH</button>
+        </div>
+
+        <!-- TILE 4: INVENTORY / BUFFS -->
+        <div class="tile" id="loot-tile">
+            <h3>🎒 Inventory & Buffs</h3>
+            <div class="content-box">
+                <p id="inventory-item" style="text-align:center; font-weight:bold; margin-bottom:10px;">Found: Nothing...</p>
+                <p id="buff-text" style="font-size: 0.9rem; color:#94a3b8; text-align:center;">No active buffs.</p>
+            </div>
+            <button class="btn" onclick="findLoot()">🎁 Open Loot Crate</button>
+            <button class="btn" style="background: #fb8500; color: black;" onclick="getBuff()">🎲 Get Buff</button>
+        </div>
+
+        <!-- TILE 5: SYSTEM MODES -->
+        <div class="tile">
+            <h3>⚙️ Systems</h3>
+            <div class="content-box">
+                <div style="font-size:0.9rem; margin-bottom:10px;">Vitals HP: <meter value="0.7" style="width:100%;"></meter></div>
+                <button class="btn" style="background: #555;" onclick="toggleFocus()">🌑 Toggle Void Mode</button>
+                <button class="btn" style="background: #334155;" onclick="toggleWorkMode()">☕ Coffee Mode</button>
+                <button class="btn" style="background: #ff0054;" onclick="enterRage()">🔥 Enter Rage Mode</button>
+                <button class="btn" style="background: #48cae4; color:black;" onclick="enterStealth()">👤 Stealth Mode (Reset)</button>
+            </div>
+            <footer style="font-size: 9px; text-align: center; color:#555;">© ALEXIS-STUDIOS | AUTOSAVE</footer>
+        </div>
+    </div>
+
+    <!-- 🧠 CORE BRAIN LINK -->
+    <script>
+        let level = localStorage.getItem('auraLevel') ? parseInt(localStorage.getItem('auraLevel')) : 1;
+        let progress = 0;
+
+        // --- 1. STARTUP FROM MEMORY ---
+        window.onload = () => {
+            const savedQuest = localStorage.getItem('savedQuest');
+            if (savedQuest) document.getElementById('quest-text').innerText = savedQuest;
+            document.getElementById('aura-lv').innerText = level;
+            const savedLoot = localStorage.getItem('savedLoot');
+            if (savedLoot) document.getElementById('inventory-item').innerText = "Found: " + savedLoot;
+
+            const hour = new Date().getHours();
+            if (hour >= 20 || hour < 6) {
+                document.body.style.background = "radial-gradient(circle, #050505, #12002b)";
+            }
+        };
+
+        // --- 2. EVENTS & LISTENERS ---
+        document.getElementById('quest-text').addEventListener('input', () => {
+            localStorage.setItem('savedQuest', document.getElementById('quest-text').innerText);
+        });
+
+        document.getElementById('search-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') runSearch();
+        });
+
+        // --- 3. SYSTEM FUNCTIONS ---
+        function runSearch() {
+            var raw = document.getElementById('search-input').value;
+            var term = encodeURIComponent(raw.trim());
+            var engine = document.getElementById('search-engine').value;
+            var baseUrl = {
+                google: "google.com",
+                youtube: "youtube.com",
+                reddit: "reddit.com"
+            };
+            if (term !== "") { window.open(baseUrl[engine] + term, '_blank'); }
+            else { alert("Type something first, bruh."); }
+        }
+
+        function findLoot() {
+            const items = ["💎 Rare Diamond", "🍕 Unlimited Pizza", "🎸 Rockstar Guitar", "👑 Golden Crown"];
+            const found = items[Math.floor(Math.random() * items.length)];
+            document.getElementById('inventory-item').innerText = "Found: " + found;
+            localStorage.setItem('savedLoot', found);
+        }
+
+        function getBuff() {
+            const buffs = ['+10 Coding Wisdom', '+5 Productivity Aura', '+20 Social Battery'];
+            document.getElementById('buff-text').innerText = buffs[Math.floor(Math.random() * buffs.length)];
+        }
+
+        function finishQuest() {
+            document.getElementById('quest-item').style.opacity = "0.3";
+            document.getElementById('pet-talk').innerText = "QUEST COMPLETE! +50 XP";
+            document.getElementById('pet').innerText = "( >‿<)";
+            alert("Quest Cleared! Your brain just got +1 Dopamine.");
+        }
+
+        function pokePet() {
+            document.getElementById('pet').innerText = '( >_<)';
+            document.getElementById('pet-talk').innerText = 'Ouch! Stop clicking me!';
+        }
+
+        function toggleFocus() {
+            const grid = document.querySelector('.bento-grid');
+            grid.style.filter = (grid.style.filter === 'grayscale(100%) brightness(0.7)') ? 'none' : 'grayscale(100%) brightness(0.7)';
+        }
+
+        function toggleWorkMode() {
+            const pet = document.getElementById('pet-tile');
+            const loot = document.getElementById('loot-tile');
+            const isHidden = pet.style.display === "none";
+            pet.style.display = isHidden ? "flex" : "none";
+            loot.style.display = isHidden ? "flex" : "none";
+        }
+
+        function enterRage() {
+            document.body.style.background = '#330000';
+        }
+
+        function enterStealth() {
+            document.body.style.background = 'linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #0f172a)';
+            document.body.style.backgroundSize = '400% 400%';
+        }
+
+        // --- 4. ENGINE INTERVAL TIMER ---
+        setInterval(() => {
+            const pet = document.getElementById('pet');
+            const petTalk = document.getElementById('pet-talk');
+            const auraBar = document.getElementById('aura-bar');
+            
+            if (pet.innerText !== '( >_<)' && pet.innerText !== '( >‿<)') {
+                const faces = ['( ^_^_^)', '( -_-)', '( o_o)', '( ^_^)'];
+                pet.innerText = faces[Math.floor(Math.random() * faces.length)];
+            }
+            
+            if(Math.random() > 0.85) {
+                const lines = ["Bruh.", "I'm not lazy, I'm energy-efficient.", "First person to say 'bruh' was a legend.", "Loading motivation... 404.", "Current status: Unbothered."];
+                petTalk.innerText = lines[Math.floor(Math.random() * lines.length)];
+            }
+
+            progress += 5;
+            if(progress > 100) {
+                progress = 0;
+                level++;
+                document.getElementById('aura-lv').innerText = level;
+                localStorage.setItem('auraLevel', level);
+                petTalk.innerText = "LEVEL UP! Aura is looking strong, bruh.";
+            }
+            auraBar.style.width = progress + "%";
+        }, 5000);
+    </script>
+</body>
+</html>
