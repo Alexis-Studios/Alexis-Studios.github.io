@@ -191,11 +191,11 @@ function runSearch() {
     var finalUrl = "";
     
     if (engine === "google") {
-        finalUrl = secureProtocol + webPrefix + "google.com" + term;
+        finalUrl = secureProtocol + webPrefix + "google.com/" + term;
     } else if (engine === "youtube") {
-        finalUrl = secureProtocol + webPrefix + "youtube.com" + term;
+        finalUrl = secureProtocol + webPrefix + "youtube.com/" + term;
     } else if (engine === "reddit") {
-        finalUrl = secureProtocol + webPrefix + "reddit.com" + term;
+        finalUrl = secureProtocol + webPrefix + "reddit.com/" + term;
     }
 
     window.open(finalUrl, '_blank');
