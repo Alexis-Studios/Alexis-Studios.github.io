@@ -175,18 +175,29 @@
         });
 
         // --- 3. SYSTEM FUNCTIONS ---
-        function runSearch() {
-            var raw = document.getElementById('search-input').value;
-            var term = encodeURIComponent(raw.trim());
-            var engine = document.getElementById('search-engine').value;
-            var baseUrl = {
-                google: "google.com",
-                youtube: "youtube.com",
-                reddit: "reddit.com"
-            };
-            if (term !== "") { window.open(baseUrl[engine] + term, '_blank'); }
-            else { alert("Type something first, bruh."); }
-        }
+       function runSearch() {
+    var raw = document.getElementById('search-input').value;
+    var term = encodeURIComponent(raw.trim());
+    var engine = document.getElementById('search-engine').value;
+    
+    if (term === "") {
+        alert("Type something first, bruh.");
+        return;
+    }
+
+    var finalUrl = "";
+    
+    if (engine === "google") {
+        finalUrl = "https://" + "www." + "google.com" + term;
+    } else if (engine === "youtube") {
+        finalUrl = "https://" + "www." + "youtube.com" + term;
+    } else if (engine === "reddit") {
+        finalUrl = "https://" + "www." + "reddit.com" + term;
+    }
+
+    window.open(finalUrl, '_blank');
+}
+
 
         function findLoot() {
             const items = ["💎 Rare Diamond", "🍕 Unlimited Pizza", "🎸 Rockstar Guitar", "👑 Golden Crown"];
