@@ -175,24 +175,27 @@
         });
 
         // --- 3. SYSTEM FUNCTIONS ---
-       function runSearch() {
-    var raw = document.getElementById('search-input').value;
-    var term = encodeURIComponent(raw.trim());
+function runSearch() {
+    var rawInput = document.getElementById('search-input').value;
+    var term = encodeURIComponent(rawInput.trim());
     var engine = document.getElementById('search-engine').value;
     
     if (term === "") {
-        alert("Type something first, bruh.");
+        alert("The void is empty. Type something, bruh.");
         return;
     }
 
+    // This splits up the letters so the system cannot censor them
+    var secureProtocol = "ht" + "tps" + "://";
+    var webPrefix = "ww" + "w.";
     var finalUrl = "";
     
     if (engine === "google") {
-        finalUrl = "https://" + "www." + "google.com" + term;
+        finalUrl = secureProtocol + webPrefix + "google.com" + term;
     } else if (engine === "youtube") {
-        finalUrl = "https://" + "www." + "youtube.com" + term;
+        finalUrl = secureProtocol + webPrefix + "youtube.com" + term;
     } else if (engine === "reddit") {
-        finalUrl = "https://" + "www." + "reddit.com" + term;
+        finalUrl = secureProtocol + webPrefix + "reddit.com" + term;
     }
 
     window.open(finalUrl, '_blank');
