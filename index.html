@@ -185,17 +185,16 @@ function runSearch() {
         return;
     }
 
-    // This splits up the letters so the system cannot censor them
     var secureProtocol = "ht" + "tps" + "://";
     var webPrefix = "ww" + "w.";
     var finalUrl = "";
     
     if (engine === "google") {
-        finalUrl = secureProtocol + webPrefix + "google.com/" + term;
+        finalUrl = secureProtocol + webPrefix + "google.com" + "/search?q=" + term;
     } else if (engine === "youtube") {
-        finalUrl = secureProtocol + webPrefix + "youtube.com/" + term;
+        finalUrl = secureProtocol + webPrefix + "youtube.com" + "/results?search_query=" + term;
     } else if (engine === "reddit") {
-        finalUrl = secureProtocol + webPrefix + "reddit.com/" + term;
+        finalUrl = secureProtocol + webPrefix + "reddit.com" + "/search/?q=" + term;
     }
 
     window.open(finalUrl, '_blank');
